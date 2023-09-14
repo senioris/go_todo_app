@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/senioris/go_todo_app/config"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -17,19 +18,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	p := os.Args[1]
-	l, err := net.Listen("tcp", ":"+p)
-	if err != nil {
-		log.Fatalf("failed to listen port %s: %v", p, err)
-		os.Exit(1)
-	}
-
-	if err := run(context.Background(), l); err != nil {
+	if err := run(context.Background()); err != nil {
 		log.Printf("failed to terminate server: %v", err)
 	}
 }
 
-func run(ctx context.Context, l net.Listener) error {
+func run(ctx context.Context) error {
+	cfg, err := config.New()
+	if err != nil {
+		return err
+	}
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
+	if err != nil {
+		log.Fatalf("failed to listen port %d: %v", cfg.Port, err)
+	}
+	url := fmt.Sprintf("http://%s", l.Addr().String())
+	log.Printf("start with: %v", url)
+
 	s := &http.Server{
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
