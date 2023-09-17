@@ -17,6 +17,7 @@ services:
       - .:/app
     ports:
       - "18000:8080"
+      - "2345:2345"
   todo-db:
     image: mysql:8.0.29
     platform: linux/x86_64
