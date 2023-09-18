@@ -98,8 +98,8 @@ var _ TaskLister = &TaskListerMock{}
 //
 //		// make and configure a mocked TaskLister
 //		mockedTaskLister := &TaskListerMock{
-//			ListTaskFunc: func(ctx context.Context, db store.Queryer) (entity.Tasks, error) {
-//				panic("mock out the ListTask method")
+//			ListTasksFunc: func(ctx context.Context, db store.Queryer) (entity.Tasks, error) {
+//				panic("mock out the ListTasks method")
 //			},
 //		}
 //
@@ -108,26 +108,26 @@ var _ TaskLister = &TaskListerMock{}
 //
 //	}
 type TaskListerMock struct {
-	// ListTaskFunc mocks the ListTask method.
-	ListTaskFunc func(ctx context.Context, db store.Queryer) (entity.Tasks, error)
+	// ListTasksFunc mocks the ListTasks method.
+	ListTasksFunc func(ctx context.Context, db store.Queryer) (entity.Tasks, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// ListTask holds details about calls to the ListTask method.
-		ListTask []struct {
+		// ListTasks holds details about calls to the ListTasks method.
+		ListTasks []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Db is the db argument value.
 			Db store.Queryer
 		}
 	}
-	lockListTask sync.RWMutex
+	lockListTasks sync.RWMutex
 }
 
-// ListTask calls ListTaskFunc.
-func (mock *TaskListerMock) ListTask(ctx context.Context, db store.Queryer) (entity.Tasks, error) {
-	if mock.ListTaskFunc == nil {
-		panic("TaskListerMock.ListTaskFunc: method is nil but TaskLister.ListTask was just called")
+// ListTasks calls ListTasksFunc.
+func (mock *TaskListerMock) ListTasks(ctx context.Context, db store.Queryer) (entity.Tasks, error) {
+	if mock.ListTasksFunc == nil {
+		panic("TaskListerMock.ListTasksFunc: method is nil but TaskLister.ListTasks was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
@@ -136,17 +136,17 @@ func (mock *TaskListerMock) ListTask(ctx context.Context, db store.Queryer) (ent
 		Ctx: ctx,
 		Db:  db,
 	}
-	mock.lockListTask.Lock()
-	mock.calls.ListTask = append(mock.calls.ListTask, callInfo)
-	mock.lockListTask.Unlock()
-	return mock.ListTaskFunc(ctx, db)
+	mock.lockListTasks.Lock()
+	mock.calls.ListTasks = append(mock.calls.ListTasks, callInfo)
+	mock.lockListTasks.Unlock()
+	return mock.ListTasksFunc(ctx, db)
 }
 
-// ListTaskCalls gets all the calls that were made to ListTask.
+// ListTasksCalls gets all the calls that were made to ListTasks.
 // Check the length with:
 //
-//	len(mockedTaskLister.ListTaskCalls())
-func (mock *TaskListerMock) ListTaskCalls() []struct {
+//	len(mockedTaskLister.ListTasksCalls())
+func (mock *TaskListerMock) ListTasksCalls() []struct {
 	Ctx context.Context
 	Db  store.Queryer
 } {
@@ -154,8 +154,8 @@ func (mock *TaskListerMock) ListTaskCalls() []struct {
 		Ctx context.Context
 		Db  store.Queryer
 	}
-	mock.lockListTask.RLock()
-	calls = mock.calls.ListTask
-	mock.lockListTask.RUnlock()
+	mock.lockListTasks.RLock()
+	calls = mock.calls.ListTasks
+	mock.lockListTasks.RUnlock()
 	return calls
 }
