@@ -9,6 +9,7 @@ import (
 	"github.com/senioris/go_todo_app/clock"
 	"github.com/senioris/go_todo_app/config"
 	"github.com/senioris/go_todo_app/handler"
+	"github.com/senioris/go_todo_app/service"
 	"github.com/senioris/go_todo_app/store"
 )
 
@@ -24,9 +25,19 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		return nil, cleanup, err
 	}
 	r := store.Repository{Clocker: clock.RealClocker{}}
-	at := &handler.AddTask{DB: db, Repo: &r, Validator: v}
+	at := &handler.AddTask{
+		Service:   &service.AddTask{DB: db, Repo: &r},
+		Validator: v,
+	}
 	mux.Post("/tasks", at.ServeHttp)
-	lt := &handler.ListTask{DB: db, Repo: &r}
+	lt := &handler.ListTask{
+		Service: &service.ListTask{DB: db, Repo: &r},
+	}
 	mux.Get("/tasks", lt.ServeHttp)
+	ru := &handler.RegisterUser{
+		Service:   &service.RegisterUesr{DB: db, Repo: &r},
+		Validator: v,
+	}
+	mux.Post("/register", ru.ServeHttp)
 	return mux, cleanup, nil
 }
