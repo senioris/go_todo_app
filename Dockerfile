@@ -20,6 +20,6 @@ CMD [ "./app" ]
 
 FROM golang:1.21.1 as dev
 WORKDIR /app
-RUN go install github.com/go-delve/delve/cmd/dlv@latest
+# RUN go install github.com/go-delve/delve/cmd/dlv@latest
 RUN go install github.com/cosmtrek/air@latest
 CMD ["air"]
