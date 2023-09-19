@@ -159,3 +159,81 @@ func (mock *TaskListerMock) ListTasksCalls() []struct {
 	mock.lockListTasks.RUnlock()
 	return calls
 }
+
+// Ensure, that UserRegisterMock does implement UserRegister.
+// If this is not the case, regenerate this file with moq.
+var _ UserRegister = &UserRegisterMock{}
+
+// UserRegisterMock is a mock implementation of UserRegister.
+//
+//	func TestSomethingThatUsesUserRegister(t *testing.T) {
+//
+//		// make and configure a mocked UserRegister
+//		mockedUserRegister := &UserRegisterMock{
+//			RegisterUesrFunc: func(ctx context.Context, db store.Execer, u *entity.User) error {
+//				panic("mock out the RegisterUesr method")
+//			},
+//		}
+//
+//		// use mockedUserRegister in code that requires UserRegister
+//		// and then make assertions.
+//
+//	}
+type UserRegisterMock struct {
+	// RegisterUesrFunc mocks the RegisterUesr method.
+	RegisterUesrFunc func(ctx context.Context, db store.Execer, u *entity.User) error
+
+	// calls tracks calls to the methods.
+	calls struct {
+		// RegisterUesr holds details about calls to the RegisterUesr method.
+		RegisterUesr []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Db is the db argument value.
+			Db store.Execer
+			// U is the u argument value.
+			U *entity.User
+		}
+	}
+	lockRegisterUesr sync.RWMutex
+}
+
+// RegisterUesr calls RegisterUesrFunc.
+func (mock *UserRegisterMock) RegisterUesr(ctx context.Context, db store.Execer, u *entity.User) error {
+	if mock.RegisterUesrFunc == nil {
+		panic("UserRegisterMock.RegisterUesrFunc: method is nil but UserRegister.RegisterUesr was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		Db  store.Execer
+		U   *entity.User
+	}{
+		Ctx: ctx,
+		Db:  db,
+		U:   u,
+	}
+	mock.lockRegisterUesr.Lock()
+	mock.calls.RegisterUesr = append(mock.calls.RegisterUesr, callInfo)
+	mock.lockRegisterUesr.Unlock()
+	return mock.RegisterUesrFunc(ctx, db, u)
+}
+
+// RegisterUesrCalls gets all the calls that were made to RegisterUesr.
+// Check the length with:
+//
+//	len(mockedUserRegister.RegisterUesrCalls())
+func (mock *UserRegisterMock) RegisterUesrCalls() []struct {
+	Ctx context.Context
+	Db  store.Execer
+	U   *entity.User
+} {
+	var calls []struct {
+		Ctx context.Context
+		Db  store.Execer
+		U   *entity.User
+	}
+	mock.lockRegisterUesr.RLock()
+	calls = mock.calls.RegisterUesr
+	mock.lockRegisterUesr.RUnlock()
+	return calls
+}
