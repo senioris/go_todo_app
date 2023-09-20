@@ -9,7 +9,7 @@ import (
 )
 
 type RegisterUser struct {
-	Service   RegisterUesrService
+	Service   RegisterUserService
 	Validator *validator.Validate
 }
 
