@@ -45,7 +45,7 @@ func TestJWTer_generateToken(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := sut.GenarateToken(ctx, *u)
+	got, err := sut.GenerateToken(ctx, *u)
 	if err != nil {
 		t.Fatalf("not want err: %v", err)
 	}

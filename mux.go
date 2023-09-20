@@ -26,21 +26,6 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		return nil, cleanup, err
 	}
 	r := store.Repository{Clocker: clock.RealClocker{}}
-	at := &handler.AddTask{
-		Service:   &service.AddTask{DB: db, Repo: &r},
-		Validator: v,
-	}
-	mux.Post("/tasks", at.ServeHttp)
-	lt := &handler.ListTask{
-		Service: &service.ListTask{DB: db, Repo: &r},
-	}
-	mux.Get("/tasks", lt.ServeHttp)
-	ru := &handler.RegisterUser{
-		Service:   &service.RegisterUesr{DB: db, Repo: &r},
-		Validator: v,
-	}
-	mux.Post("/register", ru.ServeHttp)
-
 	rcli, err := store.NewKVS(ctx, cfg)
 	if err != nil {
 		return nil, cleanup, err
@@ -49,6 +34,26 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	if err != nil {
 		return nil, cleanup, err
 	}
+
+	at := &handler.AddTask{
+		Service:   &service.AddTask{DB: db, Repo: &r},
+		Validator: v,
+	}
+	lt := &handler.ListTask{
+		Service: &service.ListTask{DB: db, Repo: &r},
+	}
+	mux.Route("/tasks", func(r chi.Router) {
+		r.Use(handler.AuthMiddleware(jwter))
+		r.Post("/", at.ServeHttp)
+		r.Get("/", lt.ServeHttp)
+	})
+
+	ru := &handler.RegisterUser{
+		Service:   &service.RegisterUesr{DB: db, Repo: &r},
+		Validator: v,
+	}
+	mux.Post("/register", ru.ServeHttp)
+
 	l := &handler.Login{
 		Service: &service.Login{
 			DB: db, Repo: &r, TokenGenerator: jwter,
@@ -56,5 +61,13 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		Validator: v,
 	}
 	mux.Post("/login", l.ServeHttp)
+
+	mux.Route("/admin", func(r chi.Router) {
+		r.Use(handler.AuthMiddleware(jwter), handler.AdminMiddleware)
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			_, _ = w.Write([]byte(`{"message": "admin only"}`))
+		})
+	})
 	return mux, cleanup, nil
 }
