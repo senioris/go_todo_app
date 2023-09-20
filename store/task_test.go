@@ -24,7 +24,8 @@ func TestRepository_ListTasks(t *testing.T) {
 	wants := prepareTasks(ctx, t, tx)
 
 	sut := &Repository{}
-	gots, err := sut.ListTasks(ctx, tx)
+	//TODO: id
+	gots, err := sut.ListTasks(ctx, tx, 0)
 	if err != nil {
 		t.Fatalf("unexected error: %v", err)
 	}
